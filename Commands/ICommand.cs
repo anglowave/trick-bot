@@ -6,5 +6,5 @@ public interface ICommand
 {
     string Name { get; }
     string Description { get; }
-    void Execute(ChatMessage message, string[] args);
+    Task Execute(ChatMessage message, string[] args);
 }

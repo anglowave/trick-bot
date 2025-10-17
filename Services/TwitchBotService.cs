@@ -14,14 +14,16 @@ public class TwitchBotService
     private readonly ILogger<TwitchBotService> _logger;
     private readonly IConfiguration _configuration;
     private readonly CommandHandler _commandHandler;
-    private readonly TokenCallDetector _tokenCallDetector;
+    private readonly Trick.Events.OnMessageReceived _messageHandler;
+    private readonly ChatService _chatService;
 
-    public TwitchBotService(ILogger<TwitchBotService> logger, IConfiguration configuration, CommandHandler commandHandler, TokenCallDetector tokenCallDetector)
+    public TwitchBotService(ILogger<TwitchBotService> logger, IConfiguration configuration, CommandHandler commandHandler, Trick.Events.OnMessageReceived messageHandler, ChatService chatService)
     {
         _logger = logger;
         _configuration = configuration;
         _commandHandler = commandHandler;
-        _tokenCallDetector = tokenCallDetector;
+        _messageHandler = messageHandler;
+        _chatService = chatService;
 
         var clientOptions = new ClientOptions
         {
@@ -31,6 +33,9 @@ public class TwitchBotService
 
         var customClient = new WebSocketClient(clientOptions);
         _client = new TwitchClient(customClient);
+        
+        // Set the TwitchClient in ChatService to use the same instance
+        _chatService.SetTwitchClient(_client);
 
         SetupEventHandlers();
     }
@@ -89,10 +94,10 @@ public class TwitchBotService
         _logger.LogInformation($"{e.ChatMessage.Username}: {e.ChatMessage.Message}");
         
         // Handle commands
-        _commandHandler.HandleCommand(e.ChatMessage);
+        await _commandHandler.HandleCommand(e.ChatMessage);
         
-        // Detect token calls
-        await _tokenCallDetector.ProcessMessageAsync(e.ChatMessage);
+        // Handle token detection and other message processing
+        await _messageHandler.Handle(sender, e);
     }
 
     private void OnUserJoined(object? sender, OnUserJoinedArgs e)

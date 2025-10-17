@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
+using MongoDB.Driver.Linq;
 using Trick.Models;
 
 namespace Trick.Services;
@@ -30,7 +31,6 @@ public class CallService
             Username = username,
             Token = token,
             MarketCapAtCall = marketCapAtCall,
-            CurrentMarketCap = marketCapAtCall, // Initially same as call price
             CallTime = DateTime.UtcNow
         };
 
@@ -64,16 +64,47 @@ public class CallService
             .FirstOrDefaultAsync();
     }
 
-    public async Task UpdateMarketCapAsync(string callId, decimal currentMarketCap)
-    {
-        var filter = Builders<Call>.Filter.Eq(c => c.Id, callId);
-        var update = Builders<Call>.Update.Set(c => c.CurrentMarketCap, currentMarketCap);
-        
-        await _calls.UpdateOneAsync(filter, update);
-    }
 
     public async Task<List<Call>> GetAllCallsAsync()
     {
         return await _calls.Find(_ => true).ToListAsync();
+    }
+
+    public async Task<List<Call>> GetCallsByUserAndTokenAsync(string userId, string token)
+    {
+        var filter = Builders<Call>.Filter.And(
+            Builders<Call>.Filter.Eq(c => c.UserId, userId),
+            Builders<Call>.Filter.Eq(c => c.Token, token.ToUpper())
+        );
+        
+        return await _calls.Find(filter)
+            .SortByDescending(c => c.CallTime)
+            .ToListAsync();
+    }
+
+    public async Task<List<Call>> GetCallsByDateRangeAsync(DateTime startDate, DateTime endDate)
+    {
+        var filter = Builders<Call>.Filter.And(
+            Builders<Call>.Filter.Gte(c => c.CallTime, startDate),
+            Builders<Call>.Filter.Lte(c => c.CallTime, endDate)
+        );
+        
+        return await _calls.Find(filter)
+            .SortByDescending(c => c.CallTime)
+            .ToListAsync();
+    }
+
+    public async Task<List<Call>> GetRecentCallsAsync(int limit = 10)
+    {
+        return await _calls.Find(_ => true)
+            .SortByDescending(c => c.CallTime)
+            .Limit(limit)
+            .ToListAsync();
+    }
+
+    public async Task<long> GetCallCountByUserAsync(string userId)
+    {
+        var filter = Builders<Call>.Filter.Eq(c => c.UserId, userId);
+        return await _calls.CountDocumentsAsync(filter);
     }
 }

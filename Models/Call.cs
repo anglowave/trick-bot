@@ -21,15 +21,11 @@ public class Call
     [BsonElement("marketCapAtCall")]
     public decimal MarketCapAtCall { get; set; }
 
-    [BsonElement("currentMarketCap")]
-    public decimal CurrentMarketCap { get; set; }
-
     [BsonElement("callTime")]
     public DateTime CallTime { get; set; } = DateTime.UtcNow;
 
-    [BsonElement("pnl")]
-    public decimal PnL => CurrentMarketCap - MarketCapAtCall;
+    public decimal CalculatePnL(decimal currentMarketCap) => currentMarketCap - MarketCapAtCall;
 
-    [BsonElement("pnlPercentage")]
-    public decimal PnLPercentage => MarketCapAtCall > 0 ? (PnL / MarketCapAtCall) * 100 : 0;
+    public decimal CalculatePnLPercentage(decimal currentMarketCap) => 
+        MarketCapAtCall > 0 ? (CalculatePnL(currentMarketCap) / MarketCapAtCall) * 100 : 0;
 }

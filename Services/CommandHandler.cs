@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Trick.Commands;
 using TwitchLib.Client.Models;
@@ -19,7 +20,7 @@ public class CommandHandler
         _logger.LogInformation($"Loaded {_commands.Count} commands");
     }
 
-    public void HandleCommand(ChatMessage message)
+    public async Task HandleCommand(ChatMessage message)
     {
         if (!message.Message.StartsWith(_commandPrefix))
             return;
@@ -35,7 +36,7 @@ public class CommandHandler
         {
             try
             {
-                command.Execute(message, args);
+                await command.Execute(message, args);
                 _logger.LogInformation($"Executed command '{commandName}' for user '{message.Username}'");
             }
             catch (Exception ex)

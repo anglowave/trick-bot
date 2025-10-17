@@ -22,16 +22,16 @@ public class OnRaid
         // For example: raid alerts, special responses, etc.
         
         // Example: Send thank you message
-        var viewerCount = raidInfo.MsgParamViewerCount;
+        var viewerCountStr = raidInfo.MsgParamViewerCount;
         var raiderName = raidInfo.MsgParamDisplayName;
         
-        if (viewerCount > 0)
+        if (int.TryParse(viewerCountStr, out var viewerCount) && viewerCount > 0)
         {
             _logger.LogInformation($"Thanking {raiderName} for raiding with {viewerCount} viewers!");
             
             // In a real implementation, you would send this message to chat
             // This would typically be done through the TwitchBotService
-            Console.WriteLine($"Bot: Thank you {raiderName} for raiding with {viewerCount} viewers! Welcome everyone!");
+            Console.WriteLine($"Bot: Thank you {raiderName} for raiding with {viewerCountStr} viewers! Welcome everyone!");
         }
         
         // Example: Track raid statistics

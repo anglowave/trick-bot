@@ -7,24 +7,20 @@ using Trick.Services;
 
 var builder = Host.CreateApplicationBuilder(args);
 
-// Add configuration
 builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
 
-// Add logging
 builder.Logging.AddConsole();
 
-// Register services
 builder.Services.AddSingleton<TwitchBotService>();
 builder.Services.AddSingleton<CommandHandler>();
 builder.Services.AddSingleton<CallService>();
-builder.Services.AddSingleton<TokenCallDetector>();
+builder.Services.AddSingleton<DexScreenerService>();
+builder.Services.AddSingleton<ChatService>();
+builder.Services.AddHttpClient<DexScreenerService>();
 
-// Register commands
 builder.Services.AddTransient<ICommand, HelloCommand>();
 builder.Services.AddTransient<ICommand, PingCommand>();
-builder.Services.AddTransient<ICommand, PnlCommand>();
 
-// Register event handlers
 builder.Services.AddTransient<Trick.Events.OnMessageReceived>();
 builder.Services.AddTransient<Trick.Events.OnUserJoined>();
 builder.Services.AddTransient<Trick.Events.OnRaid>();
@@ -41,7 +37,6 @@ try
     await twitchBotService.StartAsync();
     logger.LogInformation("Twitch Bot started successfully!");
     
-    // Keep the application running
     await host.RunAsync();
 }
 catch (Exception ex)

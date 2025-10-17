@@ -9,66 +9,77 @@ public class TokenCallDetector
 {
     private readonly ILogger<TokenCallDetector> _logger;
     private readonly CallService _callService;
+    private readonly DexScreenerService _dexScreenerService;
     
-    // Regex pattern to detect token calls (adjust as needed)
-    // This example looks for patterns like: $TOKEN, #TOKEN, or TOKEN with $ prefix
-    private readonly Regex _tokenCallRegex = new Regex(@"\$([A-Z]{2,10})|#([A-Z]{2,10})", RegexOptions.IgnoreCase);
+    // Regex patterns to detect different token formats
+    private readonly Regex _solanaTokenRegex = new Regex(@"\$([A-Za-z0-9]{32,44})", RegexOptions.IgnoreCase);
+    private readonly Regex _ethBscTokenRegex = new Regex(@"\$([0x][A-Za-z0-9]{40})", RegexOptions.IgnoreCase);
+    private readonly Regex _symbolTokenRegex = new Regex(@"\$([A-Z]{2,10})|#([A-Z]{2,10})", RegexOptions.IgnoreCase);
 
-    public TokenCallDetector(ILogger<TokenCallDetector> logger, CallService callService)
+    public TokenCallDetector(ILogger<TokenCallDetector> logger, CallService callService, DexScreenerService dexScreenerService)
     {
         _logger = logger;
         _callService = callService;
+        _dexScreenerService = dexScreenerService;
     }
 
     public async Task ProcessMessageAsync(ChatMessage message)
     {
-        var matches = _tokenCallRegex.Matches(message.Message);
-        
-        foreach (Match match in matches)
+        // Skip if it's a command (starts with $)
+        if (message.Message.Trim().StartsWith("$"))
+            return;
+
+        // Check for Solana token addresses (32-44 characters)
+        var solanaMatches = _solanaTokenRegex.Matches(message.Message);
+        foreach (Match match in solanaMatches)
+        {
+            var tokenAddress = match.Groups[1].Value;
+            await ProcessTokenCallAsync(message, tokenAddress);
+        }
+
+        // Check for Ethereum/BSC token addresses (0x + 40 hex characters)
+        var ethBscMatches = _ethBscTokenRegex.Matches(message.Message);
+        foreach (Match match in ethBscMatches)
+        {
+            var tokenAddress = match.Groups[1].Value;
+            await ProcessTokenCallAsync(message, tokenAddress);
+        }
+
+        // Check for symbol-based tokens (2-10 characters)
+        var symbolMatches = _symbolTokenRegex.Matches(message.Message);
+        foreach (Match match in symbolMatches)
         {
             var token = match.Groups[1].Success ? match.Groups[1].Value : match.Groups[2].Value;
-            token = token.ToUpper();
-
-            // Skip if it's a command (starts with $)
-            if (message.Message.Trim().StartsWith("$"))
-                continue;
-
-            try
-            {
-                // TODO: Get real-time market cap from API
-                // For now, we'll use a placeholder value
-                var marketCapAtCall = await GetCurrentMarketCapAsync(token);
-                
-                if (marketCapAtCall > 0)
-                {
-                    await _callService.CreateCallAsync(
-                        message.UserId, 
-                        message.Username, 
-                        token, 
-                        marketCapAtCall
-                    );
-                    
-                    _logger.LogInformation($"Token call detected: {message.Username} called {token} at ${marketCapAtCall:N2}");
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error processing token call for {token} by {message.Username}");
-            }
+            await ProcessTokenCallAsync(message, token.ToUpper());
         }
     }
 
-    private async Task<decimal> GetCurrentMarketCapAsync(string token)
+    private async Task ProcessTokenCallAsync(ChatMessage message, string token)
     {
-        // TODO: Implement real-time market cap fetching
-        // This is a placeholder - you'll need to integrate with a crypto API
-        // like CoinGecko, CoinMarketCap, or similar
-        
-        await Task.Delay(1); // Placeholder async operation
-        
-        // Return a random value for demonstration
-        // In production, replace this with actual API call
-        var random = new Random();
-        return random.Next(1000000, 100000000); // Random market cap between 1M and 100M
+        try
+        {
+            var marketCapAtCall = await _dexScreenerService.GetMarketCapAsync(token);
+            
+            if (marketCapAtCall.HasValue && marketCapAtCall.Value > 0)
+            {
+                await _callService.CreateCallAsync(
+                    message.UserId, 
+                    message.Username, 
+                    token, 
+                    marketCapAtCall.Value
+                );
+                
+                _logger.LogInformation($"Token call detected: {message.Username} called {token} at ${marketCapAtCall.Value:N2}");
+            }
+            else
+            {
+                _logger.LogWarning($"No market cap data found for token {token} called by {message.Username}");
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"Error processing token call for {token} by {message.Username}");
+        }
     }
+
 }
