@@ -15,6 +15,7 @@ like Rick, but on Twitch.
 
 ## Commands
 - `$dexpaid <token>` - Checks if a token profile was paid on DexScreener
+- `$help` - Shows a list of available commands and their descriptions
 
 ### DexPaid Command Examples
 
@@ -30,7 +31,14 @@ $dexpaid 0xA0b86a33E6441b8C4C8C0C4C0C4C0C4C0C4C0C4C0
 
 ## Setup
 
-1. **Configure Twitch credentials** in `appsettings.json`:
+1. **Get your Twitch OAuth Token**:
+   - Visit [TwitchTokenGenerator.com](https://twitchtokengenerator.com/)
+   - Select "Bot Chat Token" 
+   - Choose the required scopes: `chat:read` and `chat:edit`
+   - Click "Generate Token!" and authorize with Twitch
+   - Copy the generated OAuth token
+
+2. **Configure Twitch credentials** in `appsettings.json`:
    ```json
    {
      "TwitchBot": {
@@ -50,7 +58,7 @@ $dexpaid 0xA0b86a33E6441b8C4C8C0C4C0C4C0C4C0C4C0C4C0
    }
    ```
 
-2. **Run the bot**:
+3. **Run the bot**:
    ```bash
    dotnet restore
    dotnet run
