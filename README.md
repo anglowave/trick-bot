@@ -34,9 +34,18 @@ $dexpaid 0xA0b86a33E6441b8C4C8C0C4C0C4C0C4C0C4C0C4C0
    ```json
    {
      "TwitchBot": {
-       "BotUsername": "your_bot_username",
-       "OAuthToken": "oauth:your_oauth_token",
-       "ChannelName": "your_channel_name"
+       "BotUsername": "your bot",
+       "OAuthToken": "your oauth",
+       "ChannelName": "your channel",
+       "CommandPrefix": "your prefix (! by default)",
+       "LogLevel": "Information"
+     },
+     "Logging": {
+       "LogLevel": {
+         "Default": "Information",
+         "Microsoft": "Warning",
+         "Microsoft.Hosting.Lifetime": "Information"
+       }
      }
    }
    ```
@@ -83,5 +92,6 @@ gmgn: https://gmgn.ai/bsc/token/[token]
 - **.NET 8**
 - **TwitchLib.Client**
 - **DexScreener API**
+
 
 
