@@ -54,46 +54,47 @@ public class OnMessageReceived
         }
     }
 
-    private async Task ProcessTokenCallAsync(ChatMessage message, string token)
+   private async Task ProcessTokenCallAsync(ChatMessage message, string token)
+{
+    try
     {
-        try
+        var tokenInfo = await _dexScreenerService.GetTokenInfoAsync(token);
+
+        if (tokenInfo != null)
         {
-            var tokenInfo = await _dexScreenerService.GetTokenInfoAsync(token);
-            
-            if (tokenInfo != null)
-            {
-                var response = $"🚀 {tokenInfo.BaseToken.Name} [{FormatNumber(tokenInfo.MarketCap)}/{FormatPercentage(tokenInfo.PriceChange.H24)}] " +
-                              $"{tokenInfo.BaseToken.Symbol}/{tokenInfo.QuoteToken.Symbol} {GetTrendIcon(tokenInfo.PriceChange.H24)} " +
-                              $"{tokenInfo.ChainId.ToUpper()} @ {tokenInfo.DexId} " +
-                              $"💰 USD: ${tokenInfo.PriceUsd} " +
-                              $"💎 FDV: {FormatNumber(tokenInfo.Fdv)} " +
-                              $"📊 Vol: {FormatNumber(tokenInfo.Volume.H24)} " +
-                              $"⏰ Age: {GetTokenAge(tokenInfo.PairCreatedAt)} " +
-                              $"📈 24H: {FormatPercentage(tokenInfo.PriceChange.H24)} " +
-                              $"📈 1H: {FormatPercentage(tokenInfo.PriceChange.H1)} " +
-                              $"🔗 Contract: {token} " +
-                              $"🗓️ Updated: {DateTime.UtcNow:HH:mm} UTC";
+            var response = $"🚀 {tokenInfo.BaseToken.Name} ({tokenInfo.BaseToken.Symbol})\n" +
+                           $"💰 Price: ${tokenInfo.PriceUsd} | 24H: {FormatPercentage(tokenInfo.PriceChange.H24)} {GetTrendIcon(tokenInfo.PriceChange.H24)}\n" +
+                           $"📊 Vol: {FormatNumber(tokenInfo.Volume.H24)} | FDV: {FormatNumber(tokenInfo.Fdv)} | Age: {GetTokenAge(tokenInfo.PairCreatedAt)}\n" +
+                           $"🌐 {tokenInfo.DexId} | {tokenInfo.ChainId.ToUpper()} | Updated: {DateTime.UtcNow:HH:mm} UTC\n" +
+                           $"🔗 Contract: {token}\n";
 
-                if (tokenInfo.ChainId.ToLower() == "solana")
-                    response += $" axiom: https://axiom.trade/meme/{tokenInfo.PairAddress} | gmgn: https://gmgn.ai/sol/token/{token}";
-                else if(tokenInfo.ChainId.ToLower() == "bsc")
-                    response += $" gmgn: https://gmgn.ai/bsc/token/{token}";
-                else if(tokenInfo.ChainId.ToLower() == "ethereum")
-                    response += $" gmgn: https://gmgn.ai/eth/token/{token}";
-
-                _chatService.SendMessage(message.Channel, response);
-                _logger.LogInformation($"Token info displayed: {message.Username} requested {token} info");
-            }
-            else
+            if (tokenInfo.ChainId.ToLower() == "solana")
             {
-                _logger.LogWarning($"No token data found for {token} requested by {message.Username}");
+                response += $"🔗 Axiom: https://axiom.trade/t/{token}/@q9 \n" +
+                            $"🔗 GMGN: https://gmgn.ai/sol/token/trick_{token}";
             }
+            else if (tokenInfo.ChainId.ToLower() == "bsc")
+            {
+                response += $"🔗 GMGN: https://gmgn.ai/bsc/token/trick_{token}";
+            }
+            else if (tokenInfo.ChainId.ToLower() == "ethereum")
+            {
+                response += $"🔗 GMGN: https://gmgn.ai/eth/token/trick_{token}";
+            }
+
+            _chatService.SendMessage(message.Channel, response);
+            _logger.LogInformation($"Token info displayed cleanly for {token} requested by {message.Username}");
         }
-        catch (Exception ex)
+        else
         {
-            _logger.LogError(ex, $"Error processing token info for {token} by {message.Username}");
+            _logger.LogWarning($"No token data found for {token} requested by {message.Username}");
         }
     }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, $"Error processing token info for {token} by {message.Username}");
+    }
+}
 
     private string FormatNumber(decimal value)
     {

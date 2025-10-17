@@ -19,6 +19,7 @@ builder.Services.AddHttpClient<DexScreenerService>();
 
 // Register commands
 builder.Services.AddTransient<ICommand, DexPaidCommand>();
+builder.Services.AddTransient<ICommand, HelpCommand>();
 
 builder.Services.AddTransient<Trick.Events.OnMessageReceived>();
 var host = builder.Build();

@@ -43,16 +43,43 @@ public class TwitchBotService
     {
         var botUsername = _configuration["TwitchBot:BotUsername"];
         var oauthToken = _configuration["TwitchBot:OAuthToken"];
-        var channelName = _configuration["TwitchBot:ChannelName"];
+        var channelNames = _configuration["TwitchBot:ChannelName"];
 
-        if (string.IsNullOrEmpty(botUsername) || string.IsNullOrEmpty(oauthToken) || string.IsNullOrEmpty(channelName))
+        if (string.IsNullOrEmpty(botUsername) || string.IsNullOrEmpty(oauthToken) || string.IsNullOrEmpty(channelNames))
         {
             _logger.LogError("Missing Twitch bot configuration. Please check appsettings.json");
             return;
         }
 
+        // Split channel names by comma and clean up whitespace
+        var channels = channelNames.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                                  .Select(channel => channel.Trim())
+                                  .ToArray();
+
+        if (channels.Length == 0)
+        {
+            _logger.LogError("No valid channels specified in configuration");
+            return;
+        }
+
+        _logger.LogInformation($"Joining {channels.Length} channels: {string.Join(", ", channels)}");
+
         var credentials = new ConnectionCredentials(botUsername, oauthToken);
-        _client.Initialize(credentials, channelName);
+        
+        // Initialize with the first channel
+        _client.Initialize(credentials, channels[0]);
+        
+        // Join additional channels after connection
+        if (channels.Length > 1)
+        {
+            _client.OnConnected += (sender, e) =>
+            {
+                for (int i = 1; i < channels.Length; i++)
+                {
+                    _client.JoinChannel(channels[i]);
+                }
+            };
+        }
 
         _logger.LogInformation("Starting Twitch bot...");
         _client.Connect();
