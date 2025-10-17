@@ -31,25 +31,31 @@ public class OnMessageReceived
         
         _logger.LogInformation($"Message from {message.Username}: {message.Message}");
 
+        // Check for Solana token addresses (32-44 characters)
         var solanaMatches = _solanaTokenRegex.Matches(message.Message);
         foreach (Match match in solanaMatches)
         {
             var tokenAddress = match.Groups[1].Value;
             await ProcessTokenCallAsync(message, tokenAddress);
+            return; // Exit after processing first token found
         }
 
+        // Check for Ethereum/BSC token addresses (0x + 40 hex characters)
         var ethBscMatches = _ethBscTokenRegex.Matches(message.Message);
         foreach (Match match in ethBscMatches)
         {
             var tokenAddress = match.Groups[1].Value;
             await ProcessTokenCallAsync(message, tokenAddress);
+            return; // Exit after processing first token found
         }
 
+        // Check for symbol-based tokens (2-10 characters)
         var symbolMatches = _symbolTokenRegex.Matches(message.Message);
         foreach (Match match in symbolMatches)
         {
             var token = match.Groups[1].Success ? match.Groups[1].Value : match.Groups[2].Value;
             await ProcessTokenCallAsync(message, token.ToUpper());
+            return; // Exit after processing first token found
         }
     }
 
@@ -68,12 +74,18 @@ public class OnMessageReceived
                     tokenInfo.MarketCap
                 );
                 
-                var response = $"🚀 {message.Username} called {tokenInfo.BaseToken.Name} ({tokenInfo.BaseToken.Symbol}) | " +
-                              $"💰 MC: ${tokenInfo.MarketCap:N0} | " +
-                              $"💧 Liquidity: ${tokenInfo.Liquidity.Usd:N0} | " +
-                              $"📊 24h Vol: ${tokenInfo.Volume.H24:N0} | " +
-                              $"📈 24h: {tokenInfo.PriceChange.H24:+#.##;-#.##;0}% | " +
-                              $"🔗 {tokenInfo.ChainId.ToUpper()}";
+                var response = $"🚀 {tokenInfo.BaseToken.Name} [{FormatNumber(tokenInfo.MarketCap)}/{FormatPercentage(tokenInfo.PriceChange.H24)}]\n" +
+                              $"{tokenInfo.BaseToken.Symbol}/{tokenInfo.QuoteToken.Symbol} {GetTrendIcon(tokenInfo.PriceChange.H24)}\n\n" +
+                              $"🔗 {tokenInfo.ChainId.ToUpper()} @ {tokenInfo.DexId}\n" +
+                              $"💰 USD: ${tokenInfo.PriceUsd}\n" +
+                              $"💎 FDV: {FormatNumber(tokenInfo.Fdv)}\n" +
+                              $"💧 Liq: {FormatNumber(tokenInfo.Liquidity.Usd)}\n" +
+                              $"📊 Vol: {FormatNumber(tokenInfo.Volume.H24)}\n" +
+                              $"⏰ Age: {GetTokenAge(tokenInfo.PairCreatedAt)}\n" +
+                              $"📈 24H: {FormatPercentage(tokenInfo.PriceChange.H24)}\n" +
+                              $"📈 1H: {FormatPercentage(tokenInfo.PriceChange.H1)}\n\n" +
+                              $"🔗 Contract: {token}\n" +
+                              $"🗓️ Updated: {DateTime.UtcNow:HH:mm} UTC";
                 
                 _chatService.SendMessage(message.Channel, response);
                 _logger.LogInformation($"Token call detected: {message.Username} called {token} at ${tokenInfo.MarketCap:N2}");
@@ -87,5 +99,45 @@ public class OnMessageReceived
         {
             _logger.LogError(ex, $"Error processing token call for {token} by {message.Username}");
         }
+    }
+
+    private string FormatNumber(decimal value)
+    {
+        if (value >= 1000000000)
+            return $"${value / 1000000000:F1}B";
+        if (value >= 1000000)
+            return $"${value / 1000000:F1}M";
+        if (value >= 1000)
+            return $"${value / 1000:F1}K";
+        return $"${value:F2}";
+    }
+
+    private string FormatPercentage(decimal percentage)
+    {
+        var sign = percentage >= 0 ? "+" : "";
+        return $"{sign}{percentage:F1}%";
+    }
+
+    private string GetTrendIcon(decimal percentage)
+    {
+        return percentage >= 0 ? "📈" : "📉";
+    }
+
+    private string GetTokenAge(long pairCreatedAt)
+    {
+        var created = DateTimeOffset.FromUnixTimeMilliseconds(pairCreatedAt).DateTime;
+        var age = DateTime.UtcNow - created;
+        
+        if (age.TotalDays >= 365)
+            return $"{(int)(age.TotalDays / 365)}y";
+        if (age.TotalDays >= 30)
+            return $"{(int)(age.TotalDays / 30)}mo";
+        if (age.TotalDays >= 7)
+            return $"{(int)(age.TotalDays / 7)}w";
+        if (age.TotalDays >= 1)
+            return $"{(int)age.TotalDays}d";
+        if (age.TotalHours >= 1)
+            return $"{(int)age.TotalHours}h";
+        return $"{(int)age.TotalMinutes}m";
     }
 }
