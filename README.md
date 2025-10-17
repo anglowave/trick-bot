@@ -1,6 +1,9 @@
-# Trick Twitch Bot
+<div align="center">
+  <img height="170x" src="https://avatars.githubusercontent.com/u/188250378?v=4&size=64"/>
 
-like Rick, but on Twitch.
+# Chi Bot
+
+like Rick, but for Chinese.
 
 ## Features
 
@@ -103,6 +106,7 @@ gmgn: https://gmgn.ai/bsc/token/[token]
 - **.NET 8**
 - **TwitchLib.Client**
 - **DexScreener API**
+
 
 
 
