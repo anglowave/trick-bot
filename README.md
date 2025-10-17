@@ -50,9 +50,7 @@ $dexpaid 0xA0b86a33E6441b8C4C8C0C4C0C4C0C4C0C4C0C4C0
    }
    ```
 
-2. **Set up MongoDB** (local or Atlas)
-
-3. **Run the bot**:
+2. **Run the bot**:
    ```bash
    dotnet restore
    dotnet run
@@ -92,6 +90,7 @@ gmgn: https://gmgn.ai/bsc/token/[token]
 - **.NET 8**
 - **TwitchLib.Client**
 - **DexScreener API**
+
 
 
 
