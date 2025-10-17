@@ -13,7 +13,6 @@ builder.Logging.AddConsole();
 
 builder.Services.AddSingleton<TwitchBotService>();
 builder.Services.AddSingleton<CommandHandler>();
-builder.Services.AddSingleton<CallService>();
 builder.Services.AddSingleton<DexScreenerService>();
 builder.Services.AddSingleton<ChatService>();
 builder.Services.AddHttpClient<DexScreenerService>();

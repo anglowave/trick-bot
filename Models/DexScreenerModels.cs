@@ -8,10 +8,6 @@ public class DexScreenerResponse
     public List<TokenPair> Pairs { get; set; } = new();
 }
 
-// For direct array responses
-public class DexScreenerArrayResponse : List<TokenPair>
-{
-}
 
 public class TokenPair
 {

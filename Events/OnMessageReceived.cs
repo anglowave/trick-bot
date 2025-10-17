@@ -9,7 +9,6 @@ namespace Trick.Events;
 public class OnMessageReceived
 {
     private readonly ILogger<OnMessageReceived> _logger;
-    private readonly CallService _callService;
     private readonly DexScreenerService _dexScreenerService;
     private readonly ChatService _chatService;
     
@@ -17,10 +16,9 @@ public class OnMessageReceived
     private readonly Regex _ethBscTokenRegex = new Regex(@"\$([0x][A-Za-z0-9]{40})", RegexOptions.IgnoreCase);
     private readonly Regex _symbolTokenRegex = new Regex(@"\$([A-Z]{2,10})|#([A-Z]{2,10})", RegexOptions.IgnoreCase);
 
-    public OnMessageReceived(ILogger<OnMessageReceived> logger, CallService callService, DexScreenerService dexScreenerService, ChatService chatService)
+    public OnMessageReceived(ILogger<OnMessageReceived> logger, DexScreenerService dexScreenerService, ChatService chatService)
     {
         _logger = logger;
-        _callService = callService;
         _dexScreenerService = dexScreenerService;
         _chatService = chatService;
     }
@@ -67,37 +65,36 @@ public class OnMessageReceived
             
             if (tokenInfo != null)
             {
-                await _callService.CreateCallAsync(
-                    message.UserId, 
-                    message.Username, 
-                    token, 
-                    tokenInfo.MarketCap
-                );
-                
-                var response = $"\n🚀 {tokenInfo.BaseToken.Name} [{FormatNumber(tokenInfo.MarketCap)}/{FormatPercentage(tokenInfo.PriceChange.H24)}]\n" +
-                              $"{tokenInfo.BaseToken.Symbol}/{tokenInfo.QuoteToken.Symbol} {GetTrendIcon(tokenInfo.PriceChange.H24)}\n\n" +
-                              $"🔗 {tokenInfo.ChainId.ToUpper()} @ {tokenInfo.DexId}\n" +
-                              $"💰 USD: ${tokenInfo.PriceUsd}\n" +
-                              $"💎 FDV: {FormatNumber(tokenInfo.Fdv)}\n" +
-                              $"💧 Liq: {FormatNumber(tokenInfo.Liquidity.Usd)}\n" +
-                              $"📊 Vol: {FormatNumber(tokenInfo.Volume.H24)}\n" +
-                              $"⏰ Age: {GetTokenAge(tokenInfo.PairCreatedAt)}\n" +
-                              $"📈 24H: {FormatPercentage(tokenInfo.PriceChange.H24)}\n" +
-                              $"📈 1H: {FormatPercentage(tokenInfo.PriceChange.H1)}\n\n" +
-                              $"🔗 Contract: {token}\n" +
+                var response = $"🚀 {tokenInfo.BaseToken.Name} [{FormatNumber(tokenInfo.MarketCap)}/{FormatPercentage(tokenInfo.PriceChange.H24)}] " +
+                              $"{tokenInfo.BaseToken.Symbol}/{tokenInfo.QuoteToken.Symbol} {GetTrendIcon(tokenInfo.PriceChange.H24)} " +
+                              $"{tokenInfo.ChainId.ToUpper()} @ {tokenInfo.DexId} " +
+                              $"💰 USD: ${tokenInfo.PriceUsd} " +
+                              $"💎 FDV: {FormatNumber(tokenInfo.Fdv)} " +
+                              $"📊 Vol: {FormatNumber(tokenInfo.Volume.H24)} " +
+                              $"⏰ Age: {GetTokenAge(tokenInfo.PairCreatedAt)} " +
+                              $"📈 24H: {FormatPercentage(tokenInfo.PriceChange.H24)} " +
+                              $"📈 1H: {FormatPercentage(tokenInfo.PriceChange.H1)} " +
+                              $"🔗 Contract: {token} " +
                               $"🗓️ Updated: {DateTime.UtcNow:HH:mm} UTC";
-                
+
+                if (tokenInfo.ChainId.ToLower() == "solana")
+                    response += $" axiom: https://axiom.trade/meme/{tokenInfo.PairAddress} | gmgn: https://gmgn.ai/sol/token/{token}";
+                else if(tokenInfo.ChainId.ToLower() == "bsc")
+                    response += $" gmgn: https://gmgn.ai/bsc/token/{token}";
+                else if(tokenInfo.ChainId.ToLower() == "ethereum")
+                    response += $" gmgn: https://gmgn.ai/eth/token/{token}";
+
                 _chatService.SendMessage(message.Channel, response);
-                _logger.LogInformation($"Token call detected: {message.Username} called {token} at ${tokenInfo.MarketCap:N2}");
+                _logger.LogInformation($"Token info displayed: {message.Username} requested {token} info");
             }
             else
             {
-                _logger.LogWarning($"No market cap data found for token {token} called by {message.Username}");
+                _logger.LogWarning($"No token data found for {token} requested by {message.Username}");
             }
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"Error processing token call for {token} by {message.Username}");
+            _logger.LogError(ex, $"Error processing token info for {token} by {message.Username}");
         }
     }
 
