@@ -14,7 +14,7 @@ public class OnMessageReceived
     
     private readonly Regex _solanaTokenRegex = new Regex(@"\$([A-Za-z0-9]{32,44})", RegexOptions.IgnoreCase);
     private readonly Regex _ethBscTokenRegex = new Regex(@"\$([0x][A-Za-z0-9]{40})", RegexOptions.IgnoreCase);
-    private readonly Regex _symbolTokenRegex = new Regex(@"\$([A-Z]{2,10})|#([A-Z]{2,10})", RegexOptions.IgnoreCase);
+    private readonly Regex _symbolTokenRegex = new Regex(@"\$([A-Za-z0-9]{2,10})|#([A-Za-z0-9]{2,10})", RegexOptions.IgnoreCase);
 
     public OnMessageReceived(ILogger<OnMessageReceived> logger, DexScreenerService dexScreenerService, ChatService chatService)
     {
@@ -49,7 +49,15 @@ public class OnMessageReceived
         foreach (Match match in symbolMatches)
         {
             var token = match.Groups[1].Success ? match.Groups[1].Value : match.Groups[2].Value;
-            await ProcessTokenCallAsync(message, token.ToUpper());
+            
+            // Skip if token matches a command name
+            if (IsCommandName(token))
+            {
+                _logger.LogDebug($"Skipping token search for command name: {token}");
+                return;
+            }
+            
+            await ProcessSymbolSearchAsync(message, token.ToUpper());
             return;
         }
     }
@@ -87,12 +95,62 @@ public class OnMessageReceived
         }
         else
         {
+            _chatService.SendMessage(message.Channel, $"❌ No token found for '{token}'");
             _logger.LogWarning($"No token data found for {token} requested by {message.Username}");
         }
     }
     catch (Exception ex)
     {
         _logger.LogError(ex, $"Error processing token info for {token} by {message.Username}");
+    }
+}
+
+private async Task ProcessSymbolSearchAsync(ChatMessage message, string symbol)
+{
+    try
+    {
+        _logger.LogInformation($"Searching for symbol: {symbol} by user: {message.Username}");
+        
+        var tokenInfo = await _dexScreenerService.SearchTokenAsync(symbol);
+
+        if (tokenInfo != null)
+        {
+            var response = $"🚀 {tokenInfo.BaseToken.Name} ({tokenInfo.BaseToken.Symbol})\n" +
+                           $"💰 Price: ${tokenInfo.PriceUsd} | 24H: {FormatPercentage(tokenInfo.PriceChange.H24)} {GetTrendIcon(tokenInfo.PriceChange.H24)}\n" +
+                           $"📊 Vol: {FormatNumber(tokenInfo.Volume.H24)} | FDV: {FormatNumber(tokenInfo.Fdv)} | Age: {GetTokenAge(tokenInfo.PairCreatedAt)}\n" +
+                           $"🌐 {tokenInfo.DexId} | {tokenInfo.ChainId.ToUpper()} | Updated: {DateTime.UtcNow:HH:mm} UTC\n" +
+                           $"🔗 Contract: {tokenInfo.BaseToken.Address}\n";
+
+            if (tokenInfo.ChainId.ToLower() == "solana")
+            {
+                response += $"🔗 Axiom: https://axiom.trade/t/{tokenInfo.BaseToken.Address}/@q9 \n" +
+                            $"🔗 GMGN: https://gmgn.ai/sol/token/trick_{tokenInfo.BaseToken.Address}\n" +
+                            $"🔗 DexScreener: {tokenInfo.Url}";
+            }
+            else if (tokenInfo.ChainId.ToLower() == "bsc")
+            {
+                response += $"🔗 GMGN: https://gmgn.ai/bsc/token/trick_{tokenInfo.BaseToken.Address}\n" +
+                            $"🔗 DexScreener: {tokenInfo.Url}";
+            }
+            else if (tokenInfo.ChainId.ToLower() == "ethereum")
+            {
+                response += $"🔗 GMGN: https://gmgn.ai/eth/token/trick_{tokenInfo.BaseToken.Address}\n" +
+                            $"🔗 DexScreener: {tokenInfo.Url}";
+            }
+
+            _chatService.SendMessage(message.Channel, response);
+            _logger.LogInformation($"Symbol search completed for {symbol} by user {message.Username}");
+        }
+        else
+        {
+            _chatService.SendMessage(message.Channel, $"❌ No token found for '{symbol}'");
+            _logger.LogWarning($"No search results found for symbol: {symbol} by user: {message.Username}");
+        }
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, $"Error searching for symbol {symbol} by user {message.Username}");
+        _chatService.SendMessage(message.Channel, "❌ Error searching for token. Please try again.");
     }
 }
 
@@ -134,5 +192,11 @@ public class OnMessageReceived
         if (age.TotalHours >= 1)
             return $"{(int)age.TotalHours}h";
         return $"{(int)age.TotalMinutes}m";
+    }
+
+    private bool IsCommandName(string token)
+    {
+        var commandNames = new[] { "dexpaid", "help" };
+        return commandNames.Contains(token.ToLower());
     }
 }

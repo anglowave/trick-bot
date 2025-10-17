@@ -66,10 +66,8 @@ public class TwitchBotService
 
         var credentials = new ConnectionCredentials(botUsername, oauthToken);
         
-        // Initialize with the first channel
         _client.Initialize(credentials, channels[0]);
         
-        // Join additional channels after connection
         if (channels.Length > 1)
         {
             _client.OnConnected += (sender, e) =>
@@ -112,7 +110,6 @@ public class TwitchBotService
     private void OnJoinedChannel(object? sender, OnJoinedChannelArgs e)
     {
         _logger.LogInformation($"Joined channel: {e.Channel}");
-        _client.SendMessage(e.Channel, "Bot is now online!");
     }
 
     private async void OnMessageReceived(object? sender, OnMessageReceivedArgs e)

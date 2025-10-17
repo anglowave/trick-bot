@@ -23,10 +23,13 @@ public class HelpCommand : ICommand
     {
         _logger.LogInformation($"Help command executed by user: {message.Username}");
         
-        var helpMessage = "Available commands:\n" +
-                         "$dexpaid <token_address_or_symbol> - Check if dex was paid on a token\n" +
-                         "$help - Show this help message\n"+
-                         "$<token> - Get token info";
+        var helpMessage = "🟣 Beep boop, I'm your friendly neighborhood bot (probably Rick's cousin).\n\n" +
+                         "💬 Commands I actually understand:\n" +
+                         "• $dexpaid <token> — find out if someone paid the DEX tax 😤\n" +
+                         "• $help — because even bots need therapy\n" +
+                         "• $<token> — get token info faster than your ex ghosted you\n\n" +
+                         "Powered by caffeine, code, and mild confusion," +
+                         "btw: we have no affiliation with the real Rick.";
         
         _chatService.SendMessage(message.Channel, helpMessage);
         return Task.CompletedTask;

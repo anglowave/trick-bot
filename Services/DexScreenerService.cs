@@ -184,6 +184,38 @@ public class DexScreenerService
         }
     }
 
+    public async Task<TokenPair?> SearchTokenAsync(string query)
+    {
+        try
+        {
+            var url = $"https://api.dexscreener.com/latest/dex/search?q={Uri.EscapeDataString(query)}";
+            _logger.LogDebug($"Searching token from: {url}");
+
+            var response = await _httpClient.GetAsync(url);
+            response.EnsureSuccessStatusCode();
+
+            var jsonContent = await response.Content.ReadAsStringAsync();
+            _logger.LogDebug($"Search API Response: {jsonContent}");
+
+            var searchResponse = JsonSerializer.Deserialize<DexScreenerResponse>(jsonContent);
+            if (searchResponse?.Pairs?.Any() == true)
+            {
+                // Return the first (best) result
+                var bestPair = GetBestPair(searchResponse.Pairs);
+                _logger.LogInformation($"Found token search result for '{query}': {bestPair?.BaseToken.Symbol}");
+                return bestPair;
+            }
+
+            _logger.LogWarning($"No search results found for query: {query}");
+            return null;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"Error searching for token: {query}");
+            return null;
+        }
+    }
+
     private string DetermineChainId(string token)
     {
         if (_solanaTokenRegex.IsMatch($"${token}"))
