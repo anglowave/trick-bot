@@ -6,7 +6,6 @@ like Rick, but on Twitch.
 
 - **Token Detection**: Automatically detects Solana, Ethereum/BSC, and symbol-based tokens
 - **Real-time Data**: Fetches live market data from DexScreener API
-- **Call Tracking**: Stores token calls in MongoDB for PnL tracking
 - **Rich Formatting**: Clean, emoji-rich token information display
 
 ## Supported Token Formats
@@ -84,4 +83,5 @@ gmgn: https://gmgn.ai/bsc/token/[token]
 - **.NET 8**
 - **TwitchLib.Client**
 - **DexScreener API**
+
 
