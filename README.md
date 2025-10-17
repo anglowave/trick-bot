@@ -58,7 +58,12 @@ $dexpaid 0xA0b86a33E6441b8C4C8C0C4C0C4C0C4C0C4C0C4C0
    }
    ```
 
-3. **Run the bot**:
+3. **Set up bot permissions**:
+   - Make sure your bot account is **moderated** in the channels you want it to join
+   - The bot needs moderator permissions to read and send messages in chat
+   - Add your bot as a moderator in each channel: `/mod your_bot_username`
+
+4. **Run the bot**:
    ```bash
    dotnet restore
    dotnet run
