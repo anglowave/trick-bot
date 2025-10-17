@@ -52,27 +52,36 @@ $dexpaid 0xA0b86a33E6441b8C4C8C0C4C0C4C0C4C0C4C0C4C0
 
 ## Example Output
 
+**Solana Token:**
 ```
-🚀 Friday Night [$78.5K/+2.8%]
-FRIDAY/SOL 📈
+🚀 Friday Night [$78.5K/+2.8%] FRIDAY/SOL 📈 SOLANA @ pumpswap 
+💰 USD: $0.00007852 💎 FDV: $78.5K 📊 Vol: $77.5K ⏰ Age: 2m 
+📈 24H: +2.8% 📈 1H: +2.8% 🔗 Contract: 14q7Wz9gNoezKn8Gwj5GwgNiZqeYdg3AySYgz8uqpump 
+🗓️ Updated: 09:02 UTC 
+axiom: https://axiom.trade/meme/[pairAddress] | gmgn: https://gmgn.ai/sol/token/[token]
+```
 
-🔗 SOLANA @ pumpswap
-💰 USD: $0.00007852
-💎 FDV: $78.5K
-💧 Liq: $31.3K
-📊 Vol: $77.5K
-⏰ Age: 2m
-📈 24H: +2.8%
-📈 1H: +2.8%
+**Ethereum Token:**
+```
+🚀 TokenName [$1.2M/+5.2%] TOKEN/ETH 📈 ETHEREUM @ uniswap 
+💰 USD: $0.001234 💎 FDV: $1.2M 📊 Vol: $500K ⏰ Age: 1d 
+📈 24H: +5.2% 📈 1H: +1.5% 🔗 Contract: 0x1234567890abcdef1234567890abcdef12345678 
+🗓️ Updated: 09:02 UTC 
+gmgn: https://gmgn.ai/eth/token/[token]
+```
 
-🔗 Contract: 14q7Wz9gNoezKn8Gwj5GwgNiZqeYdg3AySYgz8uqpump
-🗓️ Updated: 09:02 UTC
+**BSC Token:**
+```
+🚀 TokenName [$500K/-3.1%] TOKEN/BNB 📉 BSC @ pancakeswap 
+💰 USD: $0.000567 💎 FDV: $500K 📊 Vol: $200K ⏰ Age: 3d 
+📈 24H: -3.1% 📈 1H: -0.8% 🔗 Contract: 0xabcdef1234567890abcdef1234567890abcdef12 
+🗓️ Updated: 09:02 UTC 
+gmgn: https://gmgn.ai/bsc/token/[token]
 ```
 
 ## Tech Stack
 
 - **.NET 8**
 - **TwitchLib.Client**
-- **MongoDB.Driver**
 - **DexScreener API**
 

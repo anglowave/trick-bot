@@ -145,7 +145,6 @@ public class DexScreenerService
     {
         try
         {
-            // Determine chain based on token format
             string chainId = DetermineChainId(token);
             if (string.IsNullOrEmpty(chainId))
             {
@@ -169,7 +168,6 @@ public class DexScreenerService
                 return false;
             }
 
-            // Check if any order has type="tokenProfile" and status="approved"
             var paidOrder = orders.FirstOrDefault(o => 
                 o.Type.Equals("tokenProfile", StringComparison.OrdinalIgnoreCase) && 
                 o.Status.Equals("approved", StringComparison.OrdinalIgnoreCase));
@@ -188,21 +186,16 @@ public class DexScreenerService
 
     private string DetermineChainId(string token)
     {
-        // Check for Solana token addresses (32-44 characters)
         if (_solanaTokenRegex.IsMatch($"${token}"))
         {
             return "solana";
         }
 
-        // Check for Ethereum/BSC token addresses (0x + 40 hex characters)
         if (_ethBscTokenRegex.IsMatch($"${token}"))
         {
-            // For now, default to ethereum. Could be enhanced to detect BSC vs ETH
             return "ethereum";
         }
 
-        // For symbol-based tokens, we can't determine chain from symbol alone
-        // Return empty string to indicate unknown chain
         return string.Empty;
     }
 }

@@ -29,31 +29,28 @@ public class OnMessageReceived
         
         _logger.LogInformation($"Message from {message.Username}: {message.Message}");
 
-        // Check for Solana token addresses (32-44 characters)
         var solanaMatches = _solanaTokenRegex.Matches(message.Message);
         foreach (Match match in solanaMatches)
         {
             var tokenAddress = match.Groups[1].Value;
             await ProcessTokenCallAsync(message, tokenAddress);
-            return; // Exit after processing first token found
+            return; 
         }
 
-        // Check for Ethereum/BSC token addresses (0x + 40 hex characters)
         var ethBscMatches = _ethBscTokenRegex.Matches(message.Message);
         foreach (Match match in ethBscMatches)
         {
             var tokenAddress = match.Groups[1].Value;
             await ProcessTokenCallAsync(message, tokenAddress);
-            return; // Exit after processing first token found
+            return; 
         }
 
-        // Check for symbol-based tokens (2-10 characters)
         var symbolMatches = _symbolTokenRegex.Matches(message.Message);
         foreach (Match match in symbolMatches)
         {
             var token = match.Groups[1].Success ? match.Groups[1].Value : match.Groups[2].Value;
             await ProcessTokenCallAsync(message, token.ToUpper());
-            return; // Exit after processing first token found
+            return;
         }
     }
 

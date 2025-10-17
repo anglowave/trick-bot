@@ -34,7 +34,6 @@ public class TwitchBotService
         var customClient = new WebSocketClient(clientOptions);
         _client = new TwitchClient(customClient);
         
-        // Set the TwitchClient in ChatService to use the same instance
         _chatService.SetTwitchClient(_client);
 
         SetupEventHandlers();
@@ -93,10 +92,8 @@ public class TwitchBotService
     {
         _logger.LogInformation($"{e.ChatMessage.Username}: {e.ChatMessage.Message}");
         
-        // Handle commands
         await _commandHandler.HandleCommand(e.ChatMessage);
         
-        // Handle token detection and other message processing
         await _messageHandler.Handle(sender, e);
     }
 
