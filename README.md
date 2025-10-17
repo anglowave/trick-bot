@@ -1,6 +1,6 @@
 # Trick Twitch Bot
 
-A Twitch bot that automatically detects cryptocurrency tokens in chat messages and provides real-time market data.
+like Rick, but on Twitch.
 
 ## Features
 
@@ -68,3 +68,4 @@ FRIDAY/SOL 📈
 - **MongoDB.Driver**
 - **DexScreener API**
 - **Dependency Injection**
+
