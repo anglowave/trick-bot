@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("trick")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+db2fe33f54539d1af0eb1a1252cda90a2f5db6e8")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+95e2c6f1fdd34d3f1cd5a0dca0de49ba9d33dfbd")]
 [assembly: System.Reflection.AssemblyProductAttribute("trick")]
 [assembly: System.Reflection.AssemblyTitleAttribute("trick")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

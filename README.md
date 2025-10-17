@@ -13,13 +13,21 @@ like Rick, but on Twitch.
 
 - **Solana**: `$GKbUiHTjJ4DxzL4LX9P4evhtsPsBHgUxtr4Da8HMpump`
 - **Ethereum/BSC**: `$0x8577cf66262d8d7bbc713f8c96fdf5871baf4444`
-- **Symbols**: `$BTC`, `#ETH`
 
 ## Commands
+- `$dexpaid <token>` - Checks if a token profile was paid on DexScreener
 
-- `$hello` - Greeting command
-- `$ping` - Ping command
-- `$pnl <token>` - Shows PnL for your latest call
+### DexPaid Command Examples
+
+```
+$dexpaid 4QUUhKUnG9jDdACyVQgmYmATfH2Eo6cTwK4rMQXApump
+$dexpaid 0xA0b86a33E6441b8C4C8C0C4C0C4C0C4C0C4C0C4C0
+```
+
+**Response:**
+```
+🔍 DexScreener Payment Status for 4QUUhKUnG9jDdACyVQgmYmATfH2Eo6cTwK4rMQXApump: ✅ PAID
+```
 
 ## Setup
 
@@ -67,5 +75,4 @@ FRIDAY/SOL 📈
 - **TwitchLib.Client**
 - **MongoDB.Driver**
 - **DexScreener API**
-- **Dependency Injection**
 
