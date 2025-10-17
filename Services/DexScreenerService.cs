@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using Trick.Models;
 
 namespace Trick.Services;
@@ -8,6 +9,10 @@ public class DexScreenerService
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<DexScreenerService> _logger;
+    
+    private readonly Regex _solanaTokenRegex = new Regex(@"\$([A-Za-z0-9]{32,44})", RegexOptions.IgnoreCase);
+    private readonly Regex _ethBscTokenRegex = new Regex(@"\$([0x][A-Za-z0-9]{40})", RegexOptions.IgnoreCase);
+    private readonly Regex _symbolTokenRegex = new Regex(@"\$([A-Z]{2,10})|#([A-Z]{2,10})", RegexOptions.IgnoreCase);
 
     public DexScreenerService(HttpClient httpClient, ILogger<DexScreenerService> logger)
     {
@@ -134,5 +139,70 @@ public class DexScreenerService
             _logger.LogError(ex, $"Error fetching token info for {tokenAddress}");
             return null;
         }
+    }
+
+    public async Task<bool> DexPaid(string token)
+    {
+        try
+        {
+            // Determine chain based on token format
+            string chainId = DetermineChainId(token);
+            if (string.IsNullOrEmpty(chainId))
+            {
+                _logger.LogWarning($"Unable to determine chain for token: {token}");
+                return false;
+            }
+
+            var url = $"https://api.dexscreener.com/orders/v1/{chainId}/{token}";
+            _logger.LogDebug($"Checking payment status from: {url}");
+
+            var response = await _httpClient.GetAsync(url);
+            response.EnsureSuccessStatusCode();
+
+            var jsonContent = await response.Content.ReadAsStringAsync();
+            _logger.LogDebug($"Payment API Response: {jsonContent}");
+
+            var orders = JsonSerializer.Deserialize<List<DexPaidOrder>>(jsonContent);
+            if (orders == null || !orders.Any())
+            {
+                _logger.LogInformation($"No payment orders found for token: {token}");
+                return false;
+            }
+
+            // Check if any order has type="tokenProfile" and status="approved"
+            var paidOrder = orders.FirstOrDefault(o => 
+                o.Type.Equals("tokenProfile", StringComparison.OrdinalIgnoreCase) && 
+                o.Status.Equals("approved", StringComparison.OrdinalIgnoreCase));
+
+            bool isPaid = paidOrder != null;
+            _logger.LogInformation($"Token {token} payment status: {(isPaid ? "PAID" : "NOT PAID")}");
+            
+            return isPaid;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"Error checking payment status for token {token}");
+            return false;
+        }
+    }
+
+    private string DetermineChainId(string token)
+    {
+        // Check for Solana token addresses (32-44 characters)
+        if (_solanaTokenRegex.IsMatch($"${token}"))
+        {
+            return "solana";
+        }
+
+        // Check for Ethereum/BSC token addresses (0x + 40 hex characters)
+        if (_ethBscTokenRegex.IsMatch($"${token}"))
+        {
+            // For now, default to ethereum. Could be enhanced to detect BSC vs ETH
+            return "ethereum";
+        }
+
+        // For symbol-based tokens, we can't determine chain from symbol alone
+        // Return empty string to indicate unknown chain
+        return string.Empty;
     }
 }

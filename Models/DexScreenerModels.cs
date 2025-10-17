@@ -126,3 +126,21 @@ public class TokenInfo
     [JsonPropertyName("openGraph")]
     public string OpenGraph { get; set; } = string.Empty;
 }
+
+public class DexPaidOrder
+{
+    [JsonPropertyName("chainId")]
+    public string ChainId { get; set; } = string.Empty;
+
+    [JsonPropertyName("tokenAddress")]
+    public string TokenAddress { get; set; } = string.Empty;
+
+    [JsonPropertyName("type")]
+    public string Type { get; set; } = string.Empty;
+
+    [JsonPropertyName("status")]
+    public string Status { get; set; } = string.Empty;
+
+    [JsonPropertyName("paymentTimestamp")]
+    public long PaymentTimestamp { get; set; }
+}

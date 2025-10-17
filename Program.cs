@@ -18,13 +18,10 @@ builder.Services.AddSingleton<DexScreenerService>();
 builder.Services.AddSingleton<ChatService>();
 builder.Services.AddHttpClient<DexScreenerService>();
 
-builder.Services.AddTransient<ICommand, HelloCommand>();
-builder.Services.AddTransient<ICommand, PingCommand>();
+// Register commands
+builder.Services.AddTransient<ICommand, DexPaidCommand>();
 
 builder.Services.AddTransient<Trick.Events.OnMessageReceived>();
-builder.Services.AddTransient<Trick.Events.OnUserJoined>();
-builder.Services.AddTransient<Trick.Events.OnRaid>();
-
 var host = builder.Build();
 
 var logger = host.Services.GetRequiredService<ILogger<Program>>();

@@ -74,7 +74,7 @@ public class OnMessageReceived
                     tokenInfo.MarketCap
                 );
                 
-                var response = $"🚀 {tokenInfo.BaseToken.Name} [{FormatNumber(tokenInfo.MarketCap)}/{FormatPercentage(tokenInfo.PriceChange.H24)}]\n" +
+                var response = $"\n🚀 {tokenInfo.BaseToken.Name} [{FormatNumber(tokenInfo.MarketCap)}/{FormatPercentage(tokenInfo.PriceChange.H24)}]\n" +
                               $"{tokenInfo.BaseToken.Symbol}/{tokenInfo.QuoteToken.Symbol} {GetTrendIcon(tokenInfo.PriceChange.H24)}\n\n" +
                               $"🔗 {tokenInfo.ChainId.ToUpper()} @ {tokenInfo.DexId}\n" +
                               $"💰 USD: ${tokenInfo.PriceUsd}\n" +
