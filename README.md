@@ -44,7 +44,7 @@ $dexpaid 0xA0b86a33E6441b8C4C8C0C4C0C4C0C4C0C4C0C4C0
      "TwitchBot": {
        "BotUsername": "your bot",
        "OAuthToken": "your oauth",
-       "ChannelName": "your channel",
+       "ChannelName": "channel(s) you want trick to join [channel1, channel2]",
        "CommandPrefix": "your prefix (! by default)",
        "LogLevel": "Information"
      },
