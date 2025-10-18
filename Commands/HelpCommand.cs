@@ -25,10 +25,10 @@ public class HelpCommand : ICommand
         
         var helpMessage = "🟣 Beep boop, I'm your friendly neighborhood bot (probably Rick's cousin).\n\n" +
                          "💬 Commands I actually understand:\n" +
-                         "• %dexpaid <token> — find out if someone paid the DEX tax 😤\n" +
-                         "• %dexboosts — shows recently boosted tokens 🚀\n" +
-                         "• %help — because even bots need therapy\n" +
-                         "• %<token> — get token info faster than your ex ghosted you\n\n" +
+                         "• $dexpaid <token> — find out if someone paid the DEX tax 😤\n" +
+                         "• $dexboosts — shows recently boosted tokens 🚀\n" +
+                         "• $help — because even bots need therapy\n" +
+                         "• $<token> — get token info faster than your ex ghosted you\n\n" +
                          "Powered by caffeine, code, and mild confusion," +
                          "btw: we have no affiliation with the real Rick.";
         
