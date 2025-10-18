@@ -15,6 +15,7 @@ like Rick, but on Twitch.
 
 ## Commands
 - `$dexpaid <token>` - Checks if a token profile was paid on DexScreener
+- `$dexboosts` - Shows the top 10 recently boosted tokens (top 3 highlighted)
 - `$help` - Shows a list of available commands and their descriptions
 
 ### DexPaid Command Examples
@@ -27,6 +28,27 @@ $dexpaid 0xA0b86a33E6441b8C4C8C0C4C0C4C0C4C0C4C0C4C0
 **Response:**
 ```
 🔍 DexScreener Payment Status for 4QUUhKUnG9jDdACyVQgmYmATfH2Eo6cTwK4rMQXApump: ✅ PAID
+```
+
+### DexBoosts Command Example
+
+```
+$dexboosts
+```
+
+**Response:**
+```
+🚀 Top 10 Recently Boosted Tokens:
+🥇 ☀️ Alpha Arena (100 boosts) | SOLANA
+🥇 ☀️ GOLDCOIN (10 boosts) | SOLANA  
+🥇 ☀️ Electrum (90 boosts) | SOLANA
+   ☀️ MadDegen (10 boosts) | SOLANA
+   ☀️ USDARK (20 boosts) | SOLANA
+   ☀️ Poop (20 boosts) | SOLANA
+   ☀️ Yeti (10 boosts) | SOLANA
+   ☀️ Silvercoin (510 boosts) | SOLANA
+   ☀️ Piss (150 boosts) | SOLANA
+   🔷 Loki (100 boosts) | ETHEREUM
 ```
 
 ## Setup
@@ -45,7 +67,7 @@ $dexpaid 0xA0b86a33E6441b8C4C8C0C4C0C4C0C4C0C4C0C4C0
        "BotUsername": "your bot",
        "OAuthToken": "your oauth",
        "ChannelName": "channel(s) you want trick to join [channel1, channel2]",
-       "CommandPrefix": "your prefix (! by default)",
+       "CommandPrefix": "$",
        "LogLevel": "Information"
      },
      "Logging": {
