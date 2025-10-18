@@ -216,6 +216,36 @@ public class DexScreenerService
         }
     }
 
+    public async Task<List<TokenBoost>> GetTokenBoostsAsync()
+    {
+        try
+        {
+            var url = "https://api.dexscreener.com/token-boosts/latest/v1";
+            _logger.LogDebug($"Fetching token boosts from: {url}");
+
+            var response = await _httpClient.GetAsync(url);
+            response.EnsureSuccessStatusCode();
+
+            var jsonContent = await response.Content.ReadAsStringAsync();
+            _logger.LogDebug($"Token boosts API Response: {jsonContent}");
+
+            var boosts = JsonSerializer.Deserialize<List<TokenBoost>>(jsonContent);
+            if (boosts == null)
+            {
+                _logger.LogWarning("No token boosts data received from API");
+                return new List<TokenBoost>();
+            }
+
+            _logger.LogInformation($"Retrieved {boosts.Count} token boosts");
+            return boosts;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error fetching token boosts");
+            return new List<TokenBoost>();
+        }
+    }
+
     private string DetermineChainId(string token)
     {
         if (_solanaTokenRegex.IsMatch($"${token}"))

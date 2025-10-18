@@ -196,7 +196,7 @@ private async Task ProcessSymbolSearchAsync(ChatMessage message, string symbol)
 
     private bool IsCommandName(string token)
     {
-        var commandNames = new[] { "dexpaid", "help" };
+        var commandNames = new[] { "dexpaid", "help", "dexboosts" };
         return commandNames.Contains(token.ToLower());
     }
 }

@@ -140,3 +140,45 @@ public class DexPaidOrder
     [JsonPropertyName("paymentTimestamp")]
     public long PaymentTimestamp { get; set; }
 }
+
+public class TokenBoost
+{
+    [JsonPropertyName("url")]
+    public string Url { get; set; } = string.Empty;
+
+    [JsonPropertyName("chainId")]
+    public string ChainId { get; set; } = string.Empty;
+
+    [JsonPropertyName("tokenAddress")]
+    public string TokenAddress { get; set; } = string.Empty;
+
+    [JsonPropertyName("description")]
+    public string Description { get; set; } = string.Empty;
+
+    [JsonPropertyName("icon")]
+    public string Icon { get; set; } = string.Empty;
+
+    [JsonPropertyName("header")]
+    public string Header { get; set; } = string.Empty;
+
+    [JsonPropertyName("openGraph")]
+    public string OpenGraph { get; set; } = string.Empty;
+
+    [JsonPropertyName("links")]
+    public List<TokenLink> Links { get; set; } = new();
+
+    [JsonPropertyName("totalAmount")]
+    public int TotalAmount { get; set; }
+
+    [JsonPropertyName("amount")]
+    public int Amount { get; set; }
+}
+
+public class TokenLink
+{
+    [JsonPropertyName("type")]
+    public string Type { get; set; } = string.Empty;
+
+    [JsonPropertyName("url")]
+    public string Url { get; set; } = string.Empty;
+}
